@@ -1,0 +1,21 @@
+meta {
+  name: generate_text
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/generate-text
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  User-Agent: Thunder Client (https://www.thunderclient.com)
+  Content-Type: application/json
+}
+
+body:json {
+  {"prompt":"Give me 3 songs from Jason Miraz"}
+}

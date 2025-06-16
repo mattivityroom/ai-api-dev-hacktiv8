@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "hacktiv8",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

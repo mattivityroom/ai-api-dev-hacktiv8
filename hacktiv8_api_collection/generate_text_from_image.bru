@@ -1,0 +1,21 @@
+meta {
+  name: generate_text_from_image
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/generate-from-image
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  User-Agent: Thunder Client (https://www.thunderclient.com)
+}
+
+body:multipart-form {
+  prompt: What is the image for ?
+  image: @file(/home/syscore/Sandbox/ai-api-dev-hacktiv8/google_agentspace.webp)
+}
