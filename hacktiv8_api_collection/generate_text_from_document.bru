@@ -1,0 +1,21 @@
+meta {
+  name: generate_text_from_document
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/generate-from-document
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  User-Agent: Thunder Client (https://www.thunderclient.com)
+}
+
+body:multipart-form {
+  prompt: What is the document talking about
+  document: @file(/home/syscore/Sandbox/ai-api-dev-hacktiv8/Generative-AI-and-LLMs-for-Dummies.pdf)
+}
