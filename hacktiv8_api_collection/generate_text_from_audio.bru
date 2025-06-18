@@ -1,0 +1,21 @@
+meta {
+  name: generate_text_from_audio
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/generate-from-audio
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  User-Agent: Thunder Client (https://www.thunderclient.com)
+}
+
+body:multipart-form {
+  prompt: What is the document talking about
+  audio: @file(/home/syscore/Sandbox/ai-api-dev-hacktiv8/Google Agentspace puts AI agents in the hands of enterprise employees - Google Cloud (youtube).mp3)
+}

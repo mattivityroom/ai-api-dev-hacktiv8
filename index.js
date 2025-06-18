@@ -65,17 +65,17 @@ app.post('/generate-from-document', upload.single('document'), async(req, res) =
   const prompt = req.body.prompt || 'What is the content of this document?'
   const document = req.file.path
 
-  try {
-    const contents = [
-      { text: prompt },
-      {
-        inlineData: {
-          mimeType: 'application/pdf', // Assuming PDF, adjust as needed
-          data: Buffer.from(fs.readFileSync(document)).toString("base64")
-        }
+  const contents = [
+    { text: prompt },
+    {
+      inlineData: {
+        mimeType: 'application/pdf', // Assuming PDF, adjust as needed
+        data: Buffer.from(fs.readFileSync(document)).toString("base64")
       }
-    ];
+    }
+  ];
 
+  try {
     const generate = await ai.models.generateContent({
       model: model,
       contents: contents,
@@ -91,4 +91,32 @@ app.post('/generate-from-document', upload.single('document'), async(req, res) =
   }
 });
 
-app.post
+app.post('/generate-from-audio', upload.single('audio'), async(req, res) => {
+  const prompt = req.body.prompt || 'What is being said in this audio?'
+  const audio = req.file.path
+
+  const contents = [
+    { text: prompt },
+    {
+      inlineData: {
+        mimeType: 'audio/mp3', // Assuming MP3, adjust as needed
+        data: Buffer.from(fs.readFileSync(audio)).toString("base64")
+      }
+    }
+  ];
+
+  try {
+    const generate = await ai.models.generateContent({
+      model: model,
+      contents: contents,
+    });
+    const response = generate.text;
+    res.json({ output: response });
+    console.log(response);
+  } catch(error) {
+    console.error("Error during audio processing:", error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    fs.unlinkSync(audio);
+  }
+});
