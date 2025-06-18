@@ -2,7 +2,6 @@ const express = require('express');
 const dotenv = require('dotenv');
 const multer = require('multer');
 const fs = require('fs');
-const path = require('path');
 const { GoogleGenAI, createUserContent, createPartFromUri } = require('@google/genai');
 
 dotenv.config();
@@ -14,9 +13,15 @@ const model = "gemini-2.0-flash"
 const upload = multer({ dest: 'uploads/' });
 const PORT = 3000;
 
-app.listen(PORT, () => {
-  console.log(`Gemini API server is running at http://localhost:${PORT}`);
-});
+// Only start the server if this file is run directly (not required by tests)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Gemini API server is running at http://localhost:${PORT}`);
+  });
+}
+
+// Export the app for testing
+module.exports = app;
 
 app.post('/generate-text', async (req, res) => {
   const { prompt } = req.body;
@@ -30,7 +35,6 @@ app.post('/generate-text', async (req, res) => {
     res.json({ output: response });
     console.log(response)
   } catch (error) {
-    console.error("Error during text generation:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -56,7 +60,6 @@ app.post('/generate-from-image', upload.single('image'), async(req, res) => {
     res.json({ output: response });
     console.log(response);
   } catch(error) {
-    console.error("Error during text generation:", error);
     res.status(500).json({ error: error.message });
   }
 })
@@ -84,7 +87,6 @@ app.post('/generate-from-document', upload.single('document'), async(req, res) =
     res.json({ output: response });
     console.log(response);
   } catch(error) {
-    console.error("Error during document processing:", error);
     res.status(500).json({ error: error.message });
   } finally {
     fs.unlinkSync(document);
@@ -114,7 +116,6 @@ app.post('/generate-from-audio', upload.single('audio'), async(req, res) => {
     res.json({ output: response });
     console.log(response);
   } catch(error) {
-    console.error("Error during audio processing:", error);
     res.status(500).json({ error: error.message });
   } finally {
     fs.unlinkSync(audio);
