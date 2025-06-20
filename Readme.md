@@ -4,6 +4,7 @@ This project is an Express.js API that leverages Google's Gemini AI to generate 
 
 ## Features
 
+- Chat with AI using conversational messages
 - Generate text from text prompts
 - Generate text from images
 - Generate text from documents (PDF)
@@ -52,7 +53,20 @@ The API documentation is available as a Bruno collection in the `hacktiv8_api_co
 
 ### Available Endpoints
 
-#### 1. Generate Text from Prompt
+#### 1. Chat with AI
+
+- **Endpoint**: `POST /api/chat`
+- **Content-Type**: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "message": "Your conversational message here"
+  }
+  ```
+- **Description**: Send a conversational message to the AI and receive a response. This endpoint is designed for chat-like interactions.
+- **Example**: See `hacktiv8_api_collection/api_chat.bru`
+
+#### 2. Generate Text from Prompt
 
 - **Endpoint**: `POST /generate-text`
 - **Content-Type**: `application/json`
@@ -64,7 +78,7 @@ The API documentation is available as a Bruno collection in the `hacktiv8_api_co
   ```
 - **Example**: See `hacktiv8_api_collection/generate_text.bru`
 
-#### 2. Generate Text from Image
+#### 3. Generate Text from Image
 
 - **Endpoint**: `POST /generate-from-image`
 - **Content-Type**: `multipart/form-data`
@@ -73,7 +87,7 @@ The API documentation is available as a Bruno collection in the `hacktiv8_api_co
   - `image`: Image file
 - **Example**: See `hacktiv8_api_collection/generate_text_from_image.bru`
 
-#### 3. Generate Text from Document
+#### 4. Generate Text from Document
 
 - **Endpoint**: `POST /generate-from-document`
 - **Content-Type**: `multipart/form-data`
@@ -82,7 +96,7 @@ The API documentation is available as a Bruno collection in the `hacktiv8_api_co
   - `document`: Document file (PDF)
 - **Example**: See `hacktiv8_api_collection/generate_text_from_document.bru`
 
-#### 4. Generate Text from Audio
+#### 5. Generate Text from Audio
 
 - **Endpoint**: `POST /generate-from-audio`
 - **Content-Type**: `multipart/form-data`
