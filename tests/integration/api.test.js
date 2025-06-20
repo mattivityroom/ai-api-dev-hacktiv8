@@ -335,6 +335,185 @@ describe('Gemini API Integration Tests', () => {
     });
   });
 
+  describe('POST /api/chat', () => {
+    it('should generate chat response successfully', async () => {
+      mockGenAI.models.generateContent.resolves({
+        text: 'Hello! How can I help you today?'
+      });
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: 'Hello, how are you?' })
+        .expect(200);
+
+      expect(response.body).toEqual({
+        output: 'Hello! How can I help you today?'
+      });
+
+      expect(mockGenAI.models.generateContent.calledOnce).toBe(true);
+      expect(mockGenAI.models.generateContent.firstCall.args[0]).toEqual({
+        model: 'gemini-2.0-flash',
+        contents: 'Hello, how are you?'
+      });
+    });
+
+    it('should handle missing message field', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send({})
+        .expect(404);
+
+      expect(response.body).toEqual({
+        error: 'message is required'
+      });
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+
+    it('should handle empty message', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: '' })
+        .expect(404);
+
+      expect(response.body).toEqual({
+        error: 'message is required'
+      });
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+
+    it('should handle message with only whitespace', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: '   \n\t   ' })
+        .expect(404);
+
+      expect(response.body).toEqual({
+        error: 'message is required'
+      });
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+
+    it('should handle API errors', async () => {
+      mockGenAI.models.generateContent.rejects(new Error('Gemini API Error'));
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: 'Test message' })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Gemini API Error'
+      });
+
+      expect(mockGenAI.models.generateContent.calledOnce).toBe(true);
+    });
+
+    it('should handle long messages', async () => {
+      const longMessage = 'This is a very long message. '.repeat(100);
+
+      mockGenAI.models.generateContent.resolves({
+        text: 'I understand your long message and here is my response.'
+      });
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: longMessage })
+        .expect(200);
+
+      expect(response.body).toEqual({
+        output: 'I understand your long message and here is my response.'
+      });
+
+      expect(mockGenAI.models.generateContent.calledOnce).toBe(true);
+      expect(mockGenAI.models.generateContent.firstCall.args[0].contents).toBe(longMessage);
+    });
+
+    it('should handle special characters in message', async () => {
+      const specialMessage = 'Hello! @#$%^&*()_+ 你好 🚀 emoji test';
+
+      mockGenAI.models.generateContent.resolves({
+        text: 'I can handle special characters and emojis!'
+      });
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: specialMessage })
+        .expect(200);
+
+      expect(response.body).toEqual({
+        output: 'I can handle special characters and emojis!'
+      });
+
+      expect(mockGenAI.models.generateContent.calledOnce).toBe(true);
+      expect(mockGenAI.models.generateContent.firstCall.args[0].contents).toBe(specialMessage);
+    });
+
+    it('should handle network timeout errors', async () => {
+      mockGenAI.models.generateContent.rejects(new Error('Request timeout'));
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: 'Test timeout' })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Request timeout'
+      });
+    });
+
+    it('should handle rate limiting errors', async () => {
+      mockGenAI.models.generateContent.rejects(new Error('Rate limit exceeded'));
+
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: 'Test rate limit' })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Rate limit exceeded'
+      });
+    });
+
+    it('should handle malformed request body', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send('invalid json')
+        .set('Content-Type', 'application/json')
+        .expect(400);
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+
+    it('should handle null message', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: null })
+        .expect(404);
+
+      expect(response.body).toEqual({
+        error: 'message is required'
+      });
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+
+    it('should handle undefined message', async () => {
+      const response = await request(app)
+        .post('/api/chat')
+        .send({ message: undefined })
+        .expect(404);
+
+      expect(response.body).toEqual({
+        error: 'message is required'
+      });
+
+      expect(mockGenAI.models.generateContent.called).toBe(false);
+    });
+  });
+
   describe('Server Health', () => {
     it('should handle requests to non-existent endpoints', async () => {
       const response = await request(app)
