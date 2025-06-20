@@ -2,16 +2,19 @@ const express = require('express');
 const dotenv = require('dotenv');
 const multer = require('multer');
 const fs = require('fs');
+const cors = require('cors')
 const { GoogleGenAI, createUserContent, createPartFromUri } = require('@google/genai');
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors())
+app.use(express.static('public'))
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 const model = "gemini-2.0-flash"
 const upload = multer({ dest: 'uploads/' });
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Only start the server if this file is run directly (not required by tests)
 if (require.main === module) {
@@ -22,6 +25,26 @@ if (require.main === module) {
 
 // Export the app for testing
 module.exports = app;
+
+app.post('/api/chat', async (req, res) => {
+  const { message } = req.body;
+
+  if (!message || message.trim() === '') {
+    return res.status(404).json({ error: "message is required" });
+  }
+
+  try {
+    const generate = await ai.models.generateContent({
+      model: model,
+      contents: message
+    });
+    const response = generate.text;
+    res.json({ output: response });
+    console.log(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.post('/generate-text', async (req, res) => {
   const { prompt } = req.body;

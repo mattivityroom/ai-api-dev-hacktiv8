@@ -1,0 +1,26 @@
+meta {
+  name: api_chat
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/chat
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: */*
+  User-Agent: Thunder Client (https://www.thunderclient.com)
+}
+
+body:json {
+  {
+    "message": "how many color in Indonesia flag ?"
+  }
+}
+
+body:multipart-form {
+  message: What is the document talking about
+}
